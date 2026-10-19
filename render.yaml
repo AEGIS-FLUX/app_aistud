@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: aegis-flux-backend
+    runtime: rust
+    plan: free
+    region: frankfurt
+    rootDir: backend
+    buildCommand: cargo build --release
+    startCommand: ./target/release/aegis-backend
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: RUST_VERSION
+        value: 1.82.0

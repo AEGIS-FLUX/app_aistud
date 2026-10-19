@@ -1,0 +1,30 @@
+# Logs et temporaires
+*.log
+wget-log
+tmp/
+
+# Rust
+backend/target/
+**/*.rs.bk
+rustup.sh
+
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+**/generated_plugin_registrant.dart
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env / secrets
+.env
+.env.local
+*.pem
