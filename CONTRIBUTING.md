@@ -27,3 +27,4 @@ Chaque commit doit être signé :
 
 ```bash
 git commit -s -m "fix: correction du parseur MCP"
+
