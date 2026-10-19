@@ -1,6 +1,6 @@
 PROJECT AEGIS-FLUX & FLUTTERCRAFT GENUI
 
-> **Concept original et Architecture conçus en exclusivité par @VotrePseudoGitHub (Fondateur Unique).**  
+> **Concept original et Architecture conçus en exclusivité par @ferhatBOUCHENNA (Fondateur Unique).**  
 > Protégé sous Licence stricte **AGPLv3**. Tous droits de gouvernance et de propriété intellectuelle réservés.
 
 ---
