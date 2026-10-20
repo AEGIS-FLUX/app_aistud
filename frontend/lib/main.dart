@@ -29,6 +29,8 @@ class FlutterCraftIAApp extends StatelessWidget {
   }
 }
 
+enum _AppMode { genui, aegis }
+
 class FlutterCraftIAScreen extends StatefulWidget {
   const FlutterCraftIAScreen({super.key});
 
@@ -41,6 +43,7 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
   // Remplacez cette URL par celle de votre serveur de production Render ou de votre Codespace.
   // Ne mettez pas de "/" à la fin de l'adresse.
   static const String backendUrl = "https://aegis-flux-backend.onrender.com";
+  _AppMode _mode = _AppMode.genui;
 
   final TextEditingController _instructionsController = TextEditingController(
     text: "Crée un écran de connexion moderne avec validation d'email, mot de passe masquable et un bouton bleu dégradé.",
@@ -51,6 +54,14 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
   int _userCredits = 10;
   bool statut_premium = false;
   final TextEditingController _activationCodeController = TextEditingController();
+
+  // ───────── AEGIS-FLUX scanner ─────────
+  final TextEditingController _scanCodeController = TextEditingController();
+  final TextEditingController _scanFilenameController = TextEditingController(text: 'snippet.dart');
+  bool _isScanning = false;
+  String _scanResult = '';
+  List<Map<String, dynamic>> _scanVulnerabilities = [];
+  // ─────────────────────────────────────
 
   final List<String> _quickSuggestions = [
     "Écran de connexion moderne",
@@ -65,6 +76,8 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
   void dispose() {
     _instructionsController.dispose();
     _activationCodeController.dispose();
+    _scanCodeController.dispose();
+    _scanFilenameController.dispose();
     super.dispose();
   }
 
@@ -120,6 +133,58 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
       }
     }
   }
+
+  // ───────── AEGIS-FLUX : Scanner de sécurité ─────────
+  void _onScanPressed() async {
+    final code = _scanCodeController.text.trim();
+    if (code.isEmpty || _isScanning) return;
+
+    setState(() {
+      _isScanning = true;
+      _scanResult = '';
+      _scanVulnerabilities = [];
+    });
+
+    try {
+      final cleanUrl = backendUrl.endsWith('/')
+          ? backendUrl.substring(0, backendUrl.length - 1)
+          : backendUrl;
+
+      final response = await http.post(
+        Uri.parse('$cleanUrl/v1/aegis/scan-code'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'code_dart': code,
+          'filename': _scanFilenameController.text.trim().isEmpty
+              ? 'snippet.dart'
+              : _scanFilenameController.text.trim(),
+        }),
+      );
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        setState(() {
+          _scanResult = (data['report_markdown'] as String?) ?? '';
+          final list = data['vulnerabilities'] as List<dynamic>? ?? [];
+          _scanVulnerabilities = list.cast<Map<String, dynamic>>();
+        });
+      } else {
+        setState(() {
+          _scanResult = '// Erreur HTTP ${response.statusCode}\n${response.body}';
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _scanResult = '// Erreur réseau : $e\n// Vérifiez que le backend est actif.';
+      });
+    } finally {
+      if (mounted) setState(() => _isScanning = false);
+    }
+  }
+  // ─────────────────────────────────────────────────────
 
   void _copyToClipboard() {
     if (_generatedCode.isEmpty) return;
@@ -676,9 +741,26 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
             ),
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(56),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: SegmentedButton<_AppMode>(
+              segments: const [
+                ButtonSegment(value: _AppMode.genui, label: Text('🚀 FlutterCraft'), icon: Icon(Icons.auto_awesome)),
+                ButtonSegment(value: _AppMode.aegis, label: Text('🛡️ AEGIS-FLUX'), icon: Icon(Icons.security)),
+              ],
+              selected: {_mode},
+              onSelectionChanged: (s) => setState(() => _mode = s.first),
+            ),
+          ),
+        ),
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
+        if (_mode == _AppMode.aegis) {
+          return _buildAegisSection();
+        }
           final isWide = constraints.maxWidth >= 720;
 
           if (isWide) {
@@ -715,6 +797,369 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
             );
           }
         },
+      ),
+    );
+  }
+
+  Widget _buildAegisSection() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth >= 720;
+        if (isWide) {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(flex: 1, child: _buildAegisInputSection()),
+                const SizedBox(width: 16),
+                Expanded(flex: 1, child: _buildAegisResultSection()),
+              ],
+            ),
+          );
+        } else {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(14.0),
+            child: Column(
+              children: [
+                SizedBox(height: 400, child: _buildAegisInputSection()),
+                const SizedBox(height: 16),
+                SizedBox(height: 500, child: _buildAegisResultSection()),
+              ],
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildAegisInputSection() {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFF111827),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFDC2626).withOpacity(0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.security, color: Color(0xFFEF4444), size: 22),
+              SizedBox(width: 8),
+              Text(
+                'AEGIS-FLUX — SCANNER',
+                style: TextStyle(
+                  color: Color(0xFFEF4444),
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.1,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          const Text(
+            'CODE DART À ANALYSER :',
+            style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 11.5, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: TextField(
+              controller: _scanCodeController,
+              maxLines: null,
+              expands: true,
+              textAlignVertical: TextAlignVertical.top,
+              style: const TextStyle(color: Colors.white, fontSize: 12.5, fontFamily: 'monospace', height: 1.4),
+              decoration: InputDecoration(
+                hintText: "Collez ici le code Dart à scanner...\n\nex: const apiKey = 'gsk_...';",
+                hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 12, fontFamily: 'monospace'),
+                filled: true,
+                fillColor: const Color(0xFF0A0F1D),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: Color(0xFF334155)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1.5),
+                ),
+                contentPadding: const EdgeInsets.all(16),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _scanFilenameController,
+            style: const TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace'),
+            decoration: InputDecoration(
+              labelText: 'Nom du fichier',
+              labelStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
+              filled: true,
+              fillColor: const Color(0xFF0A0F1D),
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: Color(0xFF334155)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          ElevatedButton(
+            onPressed: _isScanning ? null : _onScanPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFDC2626),
+              foregroundColor: Colors.white,
+              disabledBackgroundColor: const Color(0xFFDC2626).withOpacity(0.5),
+              padding: const EdgeInsets.symmetric(vertical: 18),
+              elevation: 4,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
+            child: _isScanning
+                ? const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                      ),
+                      SizedBox(width: 12),
+                      Text(
+                        'ANALYSE EN COURS...',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 0.8),
+                      ),
+                    ],
+                  )
+                : const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.security, size: 22),
+                      SizedBox(width: 8),
+                      Text(
+                        'SCANNER LES FAILLES',
+                        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, letterSpacing: 0.8),
+                      ),
+                    ],
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAegisResultSection() {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFF111827),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF1E293B)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.shield, color: Color(0xFFEF4444), size: 22),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Text(
+                  'RAPPORT DE SÉCURITÉ',
+                  style: TextStyle(
+                    color: Color(0xFFEF4444),
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.1,
+                  ),
+                ),
+              ),
+              if (_scanVulnerabilities.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFDC2626),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '${_scanVulnerabilities.length}',
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Expanded(
+            child: _isScanning
+                ? const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(color: Color(0xFFEF4444), strokeWidth: 2.5),
+                        SizedBox(height: 18),
+                        Text(
+                          '[ANALYSE DE SÉCURITÉ EN COURS]',
+                          style: TextStyle(color: Color(0xFFEF4444), fontFamily: 'monospace', fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          '> Groq analyse le code selon OWASP Mobile...\n> Détection des failles en temps réel...',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Color(0xFF64748B), fontFamily: 'monospace', fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  )
+                : _scanResult.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.shield_outlined, size: 48, color: const Color(0xFFEF4444).withOpacity(0.3)),
+                            const SizedBox(height: 12),
+                            const Text(
+                              'SCANNER EN LIGNE',
+                              style: TextStyle(color: Color(0xFFEF4444), fontFamily: 'monospace', fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                            const SizedBox(height: 6),
+                            const Text(
+                              'Collez du code Dart à gauche\net cliquez sur "SCANNER LES FAILLES".',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Color(0xFF64748B), fontFamily: 'monospace', fontSize: 11.5),
+                            ),
+                          ],
+                        ),
+                      )
+                    : _scanVulnerabilities.isEmpty
+                        ? const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.check_circle, color: Color(0xFF22C55E), size: 48),
+                                SizedBox(height: 12),
+                                Text(
+                                  'AUCUNE FAILLE DÉTECTÉE',
+                                  style: TextStyle(color: Color(0xFF22C55E), fontFamily: 'monospace', fontWeight: FontWeight.bold, fontSize: 13),
+                                ),
+                                SizedBox(height: 6),
+                                Text(
+                                  'Le code semble sécurisé selon OWASP Mobile Top 10.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Color(0xFF64748B), fontFamily: 'monospace', fontSize: 11.5),
+                                ),
+                              ],
+                            ),
+                          )
+                        : ListView.separated(
+                            itemCount: _scanVulnerabilities.length,
+                            separatorBuilder: (_, __) => const SizedBox(height: 10),
+                            itemBuilder: (context, i) => _buildVulnerabilityCard(_scanVulnerabilities[i]),
+                          ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVulnerabilityCard(Map<String, dynamic> v) {
+    final severity = (v['severity'] as String?) ?? 'INFO';
+    final title = (v['title'] as String?) ?? 'Sans titre';
+    final description = (v['description'] as String?) ?? '';
+    final fix = (v['fix'] as String?) ?? '';
+    final cwe = v['cwe'] as String?;
+    final line = v['line'];
+
+    Color sevColor;
+    switch (severity.toUpperCase()) {
+      case 'HIGH':
+        sevColor = const Color(0xFFDC2626);
+        break;
+      case 'MEDIUM':
+        sevColor = const Color(0xFFF59E0B);
+        break;
+      case 'LOW':
+        sevColor = const Color(0xFF3B82F6);
+        break;
+      default:
+        sevColor = const Color(0xFF6B7280);
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0A0F1D),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: sevColor.withOpacity(0.5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: sevColor,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  severity,
+                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                ),
+              ),
+              if (cwe != null) ...[
+                const SizedBox(width: 8),
+                Text(
+                  cwe,
+                  style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11, fontFamily: 'monospace'),
+                ),
+              ],
+              if (line != null) ...[
+                const SizedBox(width: 8),
+                Text(
+                  'Ligne $line',
+                  style: const TextStyle(color: Color(0xFF64748B), fontSize: 11, fontFamily: 'monospace'),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            description,
+            style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 12, height: 1.4),
+          ),
+          if (fix.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF15803D).withOpacity(0.15),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFF22C55E).withOpacity(0.5)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.build_circle, color: Color(0xFF22C55E), size: 16),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      fix,
+                      style: const TextStyle(color: Color(0xFF86EFAC), fontSize: 11.5, height: 1.4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
