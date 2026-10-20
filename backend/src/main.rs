@@ -8,6 +8,7 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::net::SocketAddr;
+use tower_http::cors::CorsLayer;
 
 #[derive(Serialize)]
 struct Health {
@@ -195,9 +196,12 @@ async fn generate(Json(req): Json<GenerateRequest>) -> impl IntoResponse {
 
 #[tokio::main]
 async fn main() {
-    let app = Router::new()
-        .route("/health", get(health))
-        .route("/v1/fluttercraft/generate", post(generate));
+    let cors = CorsLayer::permissive();
+
+let app = Router::new()
+    .route("/health", get(health))
+    .route("/v1/fluttercraft/generate", post(generate))
+    .layer(cors);
 
     let port: u16 = env::var("PORT")
         .ok()
