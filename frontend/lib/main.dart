@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 
 void main() {
@@ -108,6 +109,7 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
         final data = jsonDecode(response.body);
         setState(() {
           _generatedCode = data['code_dart'];
+          if (!statut_premium && _userCredits > 0) _userCredits--;
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -169,6 +171,7 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
           _scanResult = (data['report_markdown'] as String?) ?? '';
           final list = data['vulnerabilities'] as List<dynamic>? ?? [];
           _scanVulnerabilities = list.cast<Map<String, dynamic>>();
+          if (!statut_premium && _userCredits > 0) _userCredits--;
         });
       } else {
         setState(() {
@@ -809,7 +812,7 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
           ),
         ),
       ),
-      body: LayoutBuilder(
+      body: (_userCredits <= 0 && !statut_premium) ? _buildLockedView() : LayoutBuilder(
         builder: (context, constraints) {
         if (_mode == _AppMode.aegis) {
           return _buildAegisSection();
@@ -1213,6 +1216,77 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildLockedView() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.lock_rounded, size: 80, color: Color(0xFFDC2626)),
+            const SizedBox(height: 20),
+            const Text(
+              'QUOTA ATTEINT',
+              style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Vous avez utilisé vos 5 crédits gratuits.\nDébloquez un accès illimité à vie.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton.icon(
+              onPressed: () async {
+                final Uri url = Uri.parse('https://github.com/sponsors/ferhatBOUCHENNA');
+                await launchUrl(url);
+              },
+              icon: const Icon(Icons.favorite),
+              label: const Text('DÉBLOQUER VIA GITHUB SPONSORS (5€)'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFF6851B),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+            ),
+            const SizedBox(height: 40),
+            const Text('OU CODE ÉTUDIANT :', style: TextStyle(color: Color(0xFF64748B), fontSize: 12)),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: 300,
+              child: TextField(
+                controller: _activationCodeController,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white, letterSpacing: 2),
+                decoration: InputDecoration(
+                  hintText: 'STUDENT2026',
+                  hintStyle: const TextStyle(color: Color(0xFF475569)),
+                  filled: true,
+                  fillColor: const Color(0xFF0F172A),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextButton(
+              onPressed: () {
+                if (_activationCodeController.text.trim().toUpperCase() == 'STUDENT2026') {
+                  setState(() => statut_premium = true);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Code invalide'), backgroundColor: Colors.red),
+                  );
+                }
+              },
+              child: const Text('Valider le code', style: TextStyle(color: Color(0xFF38BDF8))),
+            )
+          ],
+        ),
       ),
     );
   }
