@@ -217,7 +217,7 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF6851B).withOpacity(0.15),
+                      color: const Color(0xFFF6851B).withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.favorite_rounded, color: Color(0xFFF6851B), size: 24),
@@ -742,16 +742,69 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(56),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: SegmentedButton<_AppMode>(
-              segments: const [
-                ButtonSegment(value: _AppMode.genui, label: Text('🚀 FlutterCraft'), icon: Icon(Icons.auto_awesome)),
-                ButtonSegment(value: _AppMode.aegis, label: Text('🛡️ AEGIS-FLUX'), icon: Icon(Icons.security)),
+          preferredSize: const Size.fromHeight(80),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 52,
+                    child: ElevatedButton.icon(
+                      onPressed: () => setState(() => _mode = _AppMode.genui),
+                      icon: Icon(Icons.auto_awesome, size: 20,
+                          color: _mode == _AppMode.genui ? Colors.white : const Color(0xFF94A3B8)),
+                      label: Text(
+                        'FLUTTERCRAFT',
+                        style: TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 0.8,
+                          color: _mode == _AppMode.genui ? Colors.white : const Color(0xFF94A3B8),
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _mode == _AppMode.genui ? const Color(0xFF0284C7) : const Color(0xFF0F172A),
+                        elevation: _mode == _AppMode.genui ? 6 : 0,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.horizontal(left: Radius.circular(14)),
+                        ),
+                        side: BorderSide(
+                          color: _mode == _AppMode.genui ? const Color(0xFF38BDF8) : const Color(0xFF334155),
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: SizedBox(
+                    height: 52,
+                    child: ElevatedButton.icon(
+                      onPressed: () => setState(() => _mode = _AppMode.aegis),
+                      icon: Icon(Icons.security, size: 20,
+                          color: _mode == _AppMode.aegis ? Colors.white : const Color(0xFF94A3B8)),
+                      label: Text(
+                        'AEGIS-FLUX',
+                        style: TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 0.8,
+                          color: _mode == _AppMode.aegis ? Colors.white : const Color(0xFF94A3B8),
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _mode == _AppMode.aegis ? const Color(0xFFDC2626) : const Color(0xFF0F172A),
+                        elevation: _mode == _AppMode.aegis ? 6 : 0,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.horizontal(right: Radius.circular(14)),
+                        ),
+                        side: BorderSide(
+                          color: _mode == _AppMode.aegis ? const Color(0xFFEF4444) : const Color(0xFF334155),
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ],
-              selected: {_mode},
-              onSelectionChanged: (s) => setState(() => _mode = s.first),
             ),
           ),
         ),
