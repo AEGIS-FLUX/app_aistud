@@ -52,7 +52,7 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
 
   String _generatedCode = '';
   bool _isLoading = false;
-  int _userCredits = 0; // TEMPORAIRE POUR TEST
+  int _userCredits = 5;
   bool statut_premium = false;
   final TextEditingController _activationCodeController = TextEditingController();
 
