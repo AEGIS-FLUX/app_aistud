@@ -40,7 +40,7 @@ class FlutterCraftIAApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFF0B0F19),
         useMaterial3: true,
       ),
-      home: const FlutterCraftIAScreen(),
+      home: const AuthGate(),
     );
   }
 }
@@ -1565,6 +1565,77 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<AuthState>(
+      stream: Supabase.instance.client.auth.onAuthStateChange,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            backgroundColor: Color(0xFF0B0F19),
+            body: Center(child: CircularProgressIndicator(color: Color(0xFF38BDF8))),
+          );
+        }
+        final session = snapshot.data?.session;
+        if (session != null) {
+          return const FlutterCraftIAScreen();
+        }
+        return const LoginScreen();
+      },
+    );
+  }
+}
+
+class LoginScreen extends StatelessWidget {
+  const LoginScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0B0F19),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.security, size: 80, color: Color(0xFF38BDF8)),
+            const SizedBox(height: 20),
+            const Text(
+              'AEGIS-FLUX',
+              style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: 2),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Connectez-vous pour accéder à vos crédits',
+              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+            ),
+            const SizedBox(height: 40),
+            ElevatedButton.icon(
+              onPressed: () async {
+                await Supabase.instance.client.auth.signInWithOAuth(
+                  OAuthProvider.github,
+                  redirectTo: Uri.parse('https://aegis-flux.github.io/app_aistud/'),
+                );
+              },
+              icon: const Icon(Icons.login),
+              label: const Text('SE CONNECTER AVEC GITHUB'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF24292E),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
