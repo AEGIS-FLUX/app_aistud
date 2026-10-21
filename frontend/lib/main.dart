@@ -2,10 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:convert';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  const supabaseUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
+  const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
+
+  if (supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty) {
+    await Supabase.initialize(
+      url: supabaseUrl,
+      anonKey: supabaseAnonKey,
+    );
+    print('✅ Supabase initialisé');
+  } else {
+    print('⚠️ Clés Supabase non fournies. Mode hors-ligne activé.');
+  }
+  
   runApp(const FlutterCraftIAApp());
 }
 

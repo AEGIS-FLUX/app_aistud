@@ -29,3 +29,4 @@ Thumbs.db
 .env.local
 *.pem
 fluttercraft.zip
+frontend/build_local.sh
