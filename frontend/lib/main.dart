@@ -788,6 +788,23 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
                 Supabase.instance.client.auth.currentUser?.email ?? 'Utilisateur',
                 style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
               ),
+              const SizedBox(width: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: statut_premium ? const Color(0xFF15803D).withOpacity(0.2) : const Color(0xFF0284C7).withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: statut_premium ? const Color(0xFF22C55E) : const Color(0xFF38BDF8)),
+                ),
+                child: Text(
+                  statut_premium ? 'PREMIUM ♾️' : '$_userCredits crédits',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: statut_premium ? const Color(0xFF4ADE80) : const Color(0xFF38BDF8),
+                  ),
+                ),
+              ),
             const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
