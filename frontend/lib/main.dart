@@ -1621,7 +1621,7 @@ class LoginScreen extends StatelessWidget {
               onPressed: () async {
                 await Supabase.instance.client.auth.signInWithOAuth(
                   OAuthProvider.github,
-                  redirectTo: Uri.parse('https://aegis-flux.github.io/app_aistud/'),
+                  redirectTo: 'https://aegis-flux.github.io/app_aistud/',
                 );
               },
               icon: const Icon(Icons.login),
