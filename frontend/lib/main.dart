@@ -739,6 +739,13 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            tooltip: 'Se déconnecter',
+            icon: const Icon(Icons.logout, color: Color(0xFF94A3B8)),
+            onPressed: () async {
+              await Supabase.instance.client.auth.signOut();
+            },
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 12.0),
             child: ElevatedButton.icon(
