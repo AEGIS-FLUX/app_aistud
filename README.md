@@ -1,38 +1,64 @@
-PROJECT AEGIS-FLUX & FLUTTERCRAFT GENUI
+# PROJECT AEGIS-FLUX & FLUTTERCRAFT GENUI
 
-> **Concept original et Architecture conçus en exclusivité par @ferhatBOUCHENNA (Fondateur Unique).**  
-> Protégé sous Licence stricte **AGPLv3**. Tous droits de gouvernance et de propriété intellectuelle réservés.
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Backend Live](https://img.shields.io/badge/Backend-Live-brightgreen)](https://aegis-flux-backend.onrender.com/health)
+[![UI Live](https://img.shields.io/badge/UI-Live-brightgreen)](https://aegis-flux.github.io/app_aistud/)
+[![Open Collective](https://img.shields.io/badge/Sponsor-Open%20Collective-pink)](https://opencollective.com/aegis-flux)
 
----
-
-Notre Mission
-**PROJECT AEGIS-FLUX** est un framework d'automatisation SecOps et de Bug Bounty propulsé par l'IA (via le protocole MCP). Conçu à l'origine pour contourner les limites matérielles des ordinateurs locaux, le système déporte 100 % de sa puissance de calcul dans le Cloud grâce à un backend ultra-rapide en **Rust** et une interface universelle en **Flutter (Web & Android)**.
-
-Il intègre le module **FlutterCraft GenUI**, une intelligence artificielle capable de générer instantanément des composants graphiques Dart et des patchs d'auto-guérison pour corriger les failles détectées en temps réel.
+> Original concept and architecture exclusively designed by [@ferhatBOUCHENNA](https://github.com/ferhatBOUCHENNA) (Founder).
+> Protected under **AGPLv3** license. Governance and intellectual property rights reserved.
 
 ---
 
-## 🎓 Programme de Collaboration Académique (Accès Gratuit)
-Ce projet est un bien commun dédié aux étudiants et aux chercheurs. Nous croyons en la solidarité et à l'Open Science.
+## 🚀 Our Mission
 
-* **Vous n'avez pas de moyens financiers ?** Contribuez au code source ! Chaque Pull Request validée et fusionnée par le Fondateur ouvre un **accès gratuit, prioritaire et illimité à vie** à l'IA. Vos contributions valoriseront directement votre portfolio et votre CV auprès des recruteurs.
+**PROJECT AEGIS-FLUX** is an AI-powered SecOps and Bug Bounty automation framework (using the MCP protocol). Originally designed to bypass local hardware limitations, the system offloads 100% of its computing power to the Cloud thanks to an ultra-fast **Rust** backend and a universal **Flutter (Web & Android)** interface.
 
----
-
-## 💰 Soutien et Financement (Sponsors & Entreprises)
-Pour maintenir l'infrastructure Cloud active 24h/24 et payer les requêtes aux LLM, nous proposons deux portes d'entrée de financement éthique :
-
-### 💳 Option A : Entreprises & Grand Public (Facture Automatique)
-Idéal pour les professionnels, les PME et les développeurs Flutter. Vous pouvez nous soutenir via **GitHub Sponsors**. Ce système officiel gère la facturation et vous fournit un reçu conforme pour votre comptabilité.
-* [Cliquez ici pour devenir Sponsor Officiel sur GitHub](https://github.com)
-
-### 🦊 Option B : Communauté Web3 & Décentralisée (MetaMask)
-Pour des micro-dons instantanés et anonymes de **5 €** (ou plus) afin de financer directement les serveurs. Nous recommandons les réseaux à faibles frais (**Polygon / BNB Chain**).
-* **Adresse de notre portefeuille de support :** `0x5a09e3CF9A22b5c4E6688B939D6B157fA7E50F79`
+It includes **FlutterCraft GenUI**, an AI module capable of instantly generating Dart UI components and auto-healing patches to fix security vulnerabilities detected in real-time.
 
 ---
 
-## 🚀 Fonctionnalités Clés
-* 🔬 **Scan Réseau Asynchrone :** Détection automatique des cibles via Docker.
-* 🧠 **Orchestration MCP :** Interaction native de l'IA avec les outils de sécurité (Nmap, Nuclei).
-* 🧪 **FlutterCraft GenUI :** Générateur autonome d'interfaces Dart en vert fluo sur fond noir.
+## 🛡️ Key Features
+
+- 🔬 **Asynchronous Network Scan:** Automated target detection via Docker (Nmap, Nuclei, Gitleaks).
+- 🧠 **AI Orchestration (MCP):** Native interaction of the AI with security tools via the Model Context Protocol.
+- 🧪 **FlutterCraft GenUI:** Autonomous generator of Dart interfaces (neon green on black terminal) and secure code patches.
+- 🔍 **AEGIS-FLUX Scanner:** Real-time Flutter/Dart code analysis (OWASP Mobile Top 10, CWE) powered by Groq LLM.
+
+---
+
+## 🎓 Academic Collaboration Program (Free Access)
+
+This project is a common good dedicated to students and researchers. We believe in solidarity and Open Science.
+
+- **No financial means?** Contribute to the source code! Every Pull Request validated and merged by the Founder unlocks **free, priority, and unlimited lifetime access** to the AI.
+- Your contributions will directly enhance your portfolio and CV for recruiters.
+- See [CONTRIBUTING.md](CONTRIBUTING.md) for rules and the DCO.
+
+---
+
+## 💰 Sponsorship & Funding
+
+To keep the Cloud infrastructure running 24/7 and pay for LLM requests, we offer two ethical funding options:
+
+### 💳 Option A: Open Collective (Companies & Public)
+Ideal for professionals, SMEs, and Flutter developers. You can support us via **Open Collective**. This official system manages billing and provides you with a tax-deductible receipt.
+- [Become an Official Sponsor on Open Collective](https://opencollective.com/aegis-flux)
+
+### 🦊 Option B: Web3 Community (MetaMask)
+For instant and anonymous micro-donations of **5 €** (or more) to directly fund the servers. We recommend low-fee networks (**Polygon / BNB Chain**).
+- **Support wallet address:** `0x5a09e3CF9A22b5c4E6688B939D6B157fA7E50F79`
+
+---
+
+## 📚 Documentation
+
+- [API Contract](docs/API_CONTRACT.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security](SECURITY.md)
+
+---
+
+## 📄 License
+
+Distributed under the **AGPLv3** license. See [LICENSE](LICENSE).
