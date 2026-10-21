@@ -723,6 +723,11 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
               'FlutterCraft IA',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
             ),
+              const SizedBox(width: 16),
+              Text(
+                Supabase.instance.client.auth.currentUser?.email ?? 'Utilisateur',
+                style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+              ),
             const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
