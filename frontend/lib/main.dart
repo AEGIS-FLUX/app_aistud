@@ -79,6 +79,13 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
   List<Map<String, dynamic>> _scanVulnerabilities = [];
   // ─────────────────────────────────────
 
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCredits();
+  }
+
   final List<String> _quickSuggestions = [
     "Écran de connexion moderne",
     "Bouton animé avec gradient",
@@ -98,6 +105,59 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
   }
 
   // LIAISON RÉELLE ET CORRIGÉE AVEC LE SERVEUR RUST
+
+  // ───────── GESTION DES CRÉDITS SUPABASE ─────────
+  Future<void> _fetchCredits() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return;
+
+    try {
+      final response = await Supabase.instance.client
+          .from('users')
+          .select('credits, tier')
+          .eq('id', user.id)
+          .maybeSingle();
+
+      if (response == null) {
+        // Premier login : créer le profil avec 5 crédits
+        await Supabase.instance.client.from('users').insert({
+          'id': user.id,
+          'email': user.email,
+          'credits': 5,
+          'tier': 'standard',
+        });
+        setState(() {
+          _userCredits = 5;
+          statut_premium = false;
+        });
+      } else {
+        setState(() {
+          _userCredits = response['credits'] as int;
+          statut_premium = response['tier'] == 'premium' || response['tier'] == 'collaborator';
+        });
+      }
+    } catch (e) {
+      print('Erreur fetch credits: $e');
+    }
+  }
+
+  Future<void> _decrementCredits() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null || statut_premium) return;
+
+    final newCredits = _userCredits > 0 ? _userCredits - 1 : 0;
+    try {
+      await Supabase.instance.client
+          .from('users')
+          .update({'credits': newCredits})
+          .eq('id', user.id);
+      setState(() => _userCredits = newCredits);
+    } catch (e) {
+      print('Erreur update credits: $e');
+    }
+  }
+  // ────────────────────────────────────────────────
+
   void _onGeneratePressed() async {
     final query = _instructionsController.text.trim();
     if (query.isEmpty || _isLoading) return;
@@ -124,7 +184,7 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
         final data = jsonDecode(response.body);
         setState(() {
           _generatedCode = data['code_dart'];
-          if (!statut_premium && _userCredits > 0) _userCredits--;
+          _decrementCredits();
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -186,7 +246,7 @@ class _FlutterCraftIAScreenState extends State<FlutterCraftIAScreen> {
           _scanResult = (data['report_markdown'] as String?) ?? '';
           final list = data['vulnerabilities'] as List<dynamic>? ?? [];
           _scanVulnerabilities = list.cast<Map<String, dynamic>>();
-          if (!statut_premium && _userCredits > 0) _userCredits--;
+          _decrementCredits();
         });
       } else {
         setState(() {
